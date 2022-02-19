@@ -1,22 +1,19 @@
 const { Router } = require('express')
-const { Quiz } = require('../../models')
-
-const QuestionsRouter = require('./questions')
+const { User } = require('../../models')
 
 const router = new Router()
-router.use('/:quizId/questions', QuestionsRouter)
 
 router.get('/', (req, res) => {
   try {
-    res.status(200).json(Quiz.get())
+    res.status(200).json(User.get())
   } catch (err) {
     res.status(500).json(err)
   }
 })
 
-router.get('/:quizId', (req, res) => {
+router.get('/:userId', (req, res) => {
   try {
-    res.status(200).json(Quiz.getById(req.params.quizId))
+    res.status(200).json(User.getById(req.params.userId))
   } catch (err) {
     if (err.name === 'NotFoundError') {
       res.status(400).json(err)
@@ -28,8 +25,8 @@ router.get('/:quizId', (req, res) => {
 
 router.post('/', (req, res) => {
   try {
-    const quiz = Quiz.create({ ...req.body })
-    res.status(201).json(quiz)
+    const user = User.create({ ...req.body })
+    res.status(201).json(user)
   } catch (err) {
     if (err.name === 'ValidationError') {
       res.status(400).json(err.extra)
@@ -39,10 +36,10 @@ router.post('/', (req, res) => {
   }
 })
 
-router.delete('/:quizId', (req, res) => {
+router.put('/:userId', (req, res) => {
   try {
-    Quiz.delete(req.params.quizId)
-    res.status(200).json('Success the quiz has been deleted')
+    const user = User.update(req.params.userId, { ...req.body })
+    res.status(200).json(user)
   } catch (err) {
     if (err.name === 'NotFoundError') {
       res.status(400).json(err)
@@ -52,10 +49,10 @@ router.delete('/:quizId', (req, res) => {
   }
 })
 
-router.put('/:quizId', (req, res) => {
+router.delete('/:userId', (req, res) => {
   try {
-    const quiz = Quiz.update(req.params.quizId, { ...req.body })
-    res.status(201).json(quiz)
+    User.delete(req.params.userId)
+    res.status(200).json('Success the user has been deleted')
   } catch (err) {
     if (err.name === 'NotFoundError') {
       res.status(400).json(err)

@@ -1,22 +1,20 @@
 const { Router } = require('express')
-const { Quiz } = require('../../models')
+const { Question } = require('../../../models')
 
-const QuestionsRouter = require('./questions')
-
-const router = new Router()
-router.use('/:quizId/questions', QuestionsRouter)
+const router = new Router({ mergeParams: true })
 
 router.get('/', (req, res) => {
   try {
-    res.status(200).json(Quiz.get())
+    res.status(200).json(Question.get())
   } catch (err) {
     res.status(500).json(err)
   }
 })
 
-router.get('/:quizId', (req, res) => {
+router.get('/:questionId', (req, res) => {
   try {
-    res.status(200).json(Quiz.getById(req.params.quizId))
+    const question = Question.getById(req.params.questionId)
+    res.status(200).json(question)
   } catch (err) {
     if (err.name === 'NotFoundError') {
       res.status(400).json(err)
@@ -28,8 +26,8 @@ router.get('/:quizId', (req, res) => {
 
 router.post('/', (req, res) => {
   try {
-    const quiz = Quiz.create({ ...req.body })
-    res.status(201).json(quiz)
+    const question = Question.create({ ...req.body, quizId: parseInt(req.params.quizId, 10) })
+    res.status(201).json(question)
   } catch (err) {
     if (err.name === 'ValidationError') {
       res.status(400).json(err.extra)
@@ -39,10 +37,10 @@ router.post('/', (req, res) => {
   }
 })
 
-router.delete('/:quizId', (req, res) => {
+router.put('/:questionId', (req, res) => {
   try {
-    Quiz.delete(req.params.quizId)
-    res.status(200).json('Success the quiz has been deleted')
+    const question = Question.update(req.params.questionId, { ...req.body })
+    res.status(201).json(question)
   } catch (err) {
     if (err.name === 'NotFoundError') {
       res.status(400).json(err)
@@ -52,10 +50,10 @@ router.delete('/:quizId', (req, res) => {
   }
 })
 
-router.put('/:quizId', (req, res) => {
+router.delete('/:questionId', (req, res) => {
   try {
-    const quiz = Quiz.update(req.params.quizId, { ...req.body })
-    res.status(201).json(quiz)
+    Question.delete(req.params.questionId)
+    res.status(200).json('Success the question has been deleted')
   } catch (err) {
     if (err.name === 'NotFoundError') {
       res.status(400).json(err)
