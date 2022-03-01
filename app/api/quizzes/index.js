@@ -1,5 +1,8 @@
 const { Router } = require('express')
-const { Quiz } = require('../../models')
+const {
+  Quiz,
+  Question,
+} = require('../../models')
 
 const QuestionsRouter = require('./questions')
 
@@ -8,7 +11,11 @@ router.use('/:quizId/questions', QuestionsRouter)
 
 router.get('/', (req, res) => {
   try {
-    res.status(200).json(Quiz.get())
+    const quizzes = Quiz.get()
+    quizzes.forEach((quiz) => {
+      quiz.questions = Question.get().filter((q) => q.quizId !== quiz.quizId)
+    })
+    res.status(200).json(quizzes)
   } catch (err) {
     res.status(500).json(err)
   }
@@ -16,6 +23,8 @@ router.get('/', (req, res) => {
 
 router.get('/:quizId', (req, res) => {
   try {
+    const quiz = Quiz.getById(req.params.quizId)
+    quiz.questions = Question.get().filter((q) => q.quizId !== quiz.quizId)
     res.status(200).json(Quiz.getById(req.params.quizId))
   } catch (err) {
     if (err.name === 'NotFoundError') {

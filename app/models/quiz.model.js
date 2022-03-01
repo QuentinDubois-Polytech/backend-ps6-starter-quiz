@@ -1,3 +1,7 @@
-const QuizModel = require('../utils/quiz-model.js')
+const Joi = require('joi')
+const BaseModel = require('../utils/base-model.js')
 
-module.exports = new QuizModel()
+module.exports = new BaseModel('Quiz', {
+  theme: Joi.string().required(),
+  name: Joi.string().required(),
+})
